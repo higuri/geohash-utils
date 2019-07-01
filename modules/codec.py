@@ -26,34 +26,67 @@ def lower_half(seq):
 def upper_half(seq):
     assert(len(seq) == 2)
     return (mid(seq), seq[1])
+# is_contained()
+def is_contained(lat_lng_range0, lat_lng_range1):
+    ((minlat0, maxlat0), (minlng0, maxlng0)) = lat_lng_range0
+    ((minlat1, maxlat1), (minlng1, maxlng1)) = lat_lng_range1
+    return (
+        minlat1 <= minlat0 and maxlat0 <= maxlat1 and
+        minlng1 <= minlng0 and maxlng0 <= maxlng1
+    )
+
+# get_char()
+def get_char(i_chars, lat_lng, lat_lng_range):
+    (lat, lng) = lat_lng
+    (lat_range, lng_range) = lat_lng_range
+    n_bits = 5
+    bits = 0b00000
+    for i_bits in range(n_bits):
+        if (i_chars * n_bits + i_bits) % 2 == 0:
+            # lng
+            if lng < mid(lng_range):
+                #bits |=( 0b0000 >> i_bits)
+                lng_range = lower_half(lng_range)
+            else:
+                bits |= (0b10000 >> i_bits)
+                lng_range = upper_half(lng_range)
+        else:
+            # lat
+            if lat < mid(lat_range):
+                #bits |=( 0b0000 >> i_bits)
+                lat_range = lower_half(lat_range)
+            else:
+                bits |= (0b10000 >> i_bits)
+                lat_range = upper_half(lat_range)
+    return (bits2char(bits), (lat_range, lng_range))
+
 
 # encode()
 def encode(lat, lng, n_chars=11):
     chars = ''
-    lat_range = (-90.0, +90.0)
-    lng_range = (-180.0, +180.0)
+    lat_lng_range = ((-90.0, +90.0), (-180.0, +180.0))
     for i_chars in range(n_chars):
-        n_bits = 5
-        bits = 0b00000
-        for i_bits in range(n_bits):
-            if (i_chars * n_bits + i_bits) % 2 == 0:
-                # lng
-                if lng < mid(lng_range):
-                    #bits |=( 0b0000 >> i_bits)
-                    lng_range = lower_half(lng_range)
-                else:
-                    bits |= (0b10000 >> i_bits)
-                    lng_range = upper_half(lng_range)
-            else:
-                # lat
-                if lat < mid(lat_range):
-                    #bits |=( 0b0000 >> i_bits)
-                    lat_range = lower_half(lat_range)
-                else:
-                    bits |= (0b10000 >> i_bits)
-                    lat_range = upper_half(lat_range)
-        chars += bits2char(bits)
+        (char, lat_lng_range) = get_char(i_chars, (lat, lng), lat_lng_range)
+        chars += char
     return chars
+
+# encode_to_longest_geohash()
+def encode_to_longest_geohash(lat_lng_range, max_length=11):
+    ((minlat, maxlat), (minlng, maxlng)) = lat_lng_range
+    (lat, lng) = ((minlat + maxlat) / 2, (minlng + maxlng) / 2)
+    chars = ''
+    lat_lng_range1 = ((-90.0, +90.0), (-180.0, +180.0))
+    for i_chars in range(max_length):
+        (char1, lat_lng_range2) = get_char(
+            i_chars, (lat, lng), lat_lng_range1)
+        if is_contained(lat_lng_range, lat_lng_range2):
+            chars += char1
+            lat_lng_range1 = lat_lng_range2
+        else:
+            break
+    return chars
+
+
 
 # decode()
 def decode(geohash):
