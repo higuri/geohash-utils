@@ -10,41 +10,41 @@ import modules.adjacent as adjacent
 
 # cmd_encode()
 # gutils.py encode 35.1234 139.1234
-def cmd_encode(argv):
-    parser = argparse.ArgumentParser(
-        description='Encode the point consisting of (lat,lng) to a geohash.')
-    parser.add_argument('lat', type=float, help='Latitude to be encoded.')
-    parser.add_argument('lng', type=float, help='Longitude to be encoded.')
-    parser.add_argument('--length', type=int, default=11)
-    args = parser.parse_args(argv)
-    print(codec.encode(args.lat, args.lng, args.length))
-    return 0
-
-# cmd_encode_range()
 # gutils.py encode 35.1234 139.1234 35.5678 139.5678
-def cmd_encode_range(argv):
+def cmd_encode(argv):
     parser = argparse.ArgumentParser(description=
-        'Encode the range consisting of ' +
-        '[(lat0,lng0),(lat1,lng1)] to geohash(es).')
-    parser.add_argument('lat0', type=float,
-        help='Latitude of the lower left point of the range to be encoded.')
-    parser.add_argument('lng0', type=float,
-        help='Longitude of the lower left point of the range to be encoded.')
-    parser.add_argument('lat1', type=float,
-        help='Latitude of the upper right point of the range to be encoded.')
-    parser.add_argument('lng1', type=float,
-        help='Longitude of the upper right point of the range to be encoded.')
-    parser.add_argument('--max', type=int, default=11, help='TODO')
-    parser.add_argument('--length', type=int, help=
-        'If specified, this command prints the geohash(es) ' +
-        'with LENGTH characters.')
+        'Encode a point of (lat1,lng1) to a geohash. ' +
+        'If lat2 and lng2 are specified, this command encodes ' +
+        'a region of [(lat0,lng0),(lat1,lng1)] to geohash(es).')
+    parser.add_argument('lat1', type=float, help=
+        'Latitude to be encoded. If lat2 is specified, ' +
+        'lat1 indicates the latitude of the lower left point ' +
+        'of the region to be encoded.')
+    parser.add_argument('lng1', type=float, help=
+        'Longitudetude to be encoded. If lng2 is specified, ' +
+        'lng1 indicates the longitude of the lower left point ' +
+        'of the region to be encoded.')
+    parser.add_argument('lat2', type=float, nargs='?', help=
+        'Latitude of the upper right point ' +
+        'of the region to be encoded.')
+    parser.add_argument('lng2', type=float, nargs='?', help=
+        'Longitude of the lower left point ' +
+        'of the region to be encoded.')
+    parser.add_argument('--length', '-n', type=int, default=11, help=
+        'The length of encoded geohash(es).')
+    parser.add_argument('--max', type=int, help=
+        'If specified with lat2 and lng2, this commands outputs ' +
+        'the geohash with the longest length less than MAX.')
     args = parser.parse_args(argv)
-    if args.length is not None:
-        # TODO: implement
-        pass
-    else:
+    if args.lat2 is None or args.lng2 is None:
+        print(codec.encode(args.lat1, args.lng1, args.length))
+    elif args.max is not None:
+        # TODO: raise ValueError ? over args.max
         print(codec.encode_to_longest_geohash(
-            ((args.lat0, args.lng0), (args.lat1, args.lng1)), args.max))
+            ((args.lat1, args.lng1), (args.lat2, args.lng2)), args.max))
+    else:
+        print((codec.encode_to_geohashes(
+            ((args.lat1, args.lng1), (args.lat2, args.lng2)), args.length))
     return 0
 
 # cmd_decode()
@@ -81,8 +81,6 @@ def main():
     cmd = args.command
     if cmd == 'encode':
         return cmd_encode(sys.argv[2:])
-    elif cmd == 'encode_range':
-        return cmd_encode_range(sys.argv[2:])
     elif cmd == 'decode':
         return cmd_decode(sys.argv[2:])
     elif cmd == 'adjacent':
@@ -93,8 +91,6 @@ def main():
             cmd1 = sys.argv[2]
             if cmd1 == 'encode':
                 return cmd_encode(['-h'])
-            elif cmd1 == 'encode_range':
-                return cmd_encode_range(['-h'])
             elif cmd1 == 'decode':
                 return cmd_decode(['-h'])
             elif cmd1 == 'adjacent':
