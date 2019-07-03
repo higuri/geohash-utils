@@ -41,10 +41,10 @@ def cmd_encode(argv):
     elif args.max is not None:
         # TODO: raise ValueError ? over args.max
         print(codec.encode_to_longest_geohash(
-            ((args.lat1, args.lng1), (args.lat2, args.lng2)), args.max))
+            (args.lat1, args.lng1), (args.lat2, args.lng2), args.max))
     else:
         print((codec.encode_to_geohashes(
-            ((args.lat1, args.lng1), (args.lat2, args.lng2)), args.length))
+            (args.lat1, args.lng1), (args.lat2, args.lng2), args.length)))
     return 0
 
 # cmd_decode()
