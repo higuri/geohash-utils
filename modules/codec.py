@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 #
 # codec.py
-# - encode (lat,lng) to geohash.
-# - decode geohash to (lat_range,lng_range).
+# - encodes (lat,lng) to geohash.
+# - decodes geohash to (lat_range,lng_range).
 # Geohash:
 # https://en.wikipedia.org/wiki/Geohash
 #
@@ -180,7 +180,7 @@ def encode_to_geohashes(latlng0, latlng1, length=11):
                                     (lower, lng_range1)))
                                 bits1.append((
                                     bits | (0b10000 >> i_bits),
-                                    ((mid, lng_range0[1]), lng_range0),
+                                    ((mid, lat_range0[1]), lng_range0),
                                     (upper, lng_range1)))
                         else:
                             if is_contained0(lat_range0, upper):
@@ -195,7 +195,7 @@ def encode_to_geohashes(latlng0, latlng1, length=11):
                                     (lower, lng_range1)))
                                 bits1.append((
                                     bits | (0b10000 >> i_bits),
-                                    ((mid, lng_range0[1]), lng_range0),
+                                    ((mid, lat_range0[1]), lng_range0),
                                     (upper, lng_range1)))
                 bits0 = bits1
             ##
@@ -227,6 +227,7 @@ def decode(geohash):
                     lat_range = lower_half(lat_range)
                 else:
                     lat_range = upper_half(lat_range)
+    # TODO: return two corner points.
     return (lat_range, lng_range)
 
 # decode_to_range()
@@ -253,5 +254,6 @@ if __name__ == "__main__":
     assert(lat_range[0] <= 35.68123 and 35.68123 < lat_range[1])
     assert(lng_range[0] <= 139.76712 and 139.76712 < lng_range[1])
     # - encode_to_geohashes
-    #print(encode_to_geohashes((35.123, 135.123), (35.124, 135.124), 6))
+    assert(encode_to_geohashes((35.123, 135.123), (35.124, 135.124), 6) 
+        == ['xn0pfc', 'xn0pff'])
     print('TEST: OK')
