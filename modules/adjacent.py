@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # adjacent.py
-# - get geohashes adjacent to specified geohash.
+# - returns geohashes adjacent to specified geohash.
 #
 
 # ----------------
