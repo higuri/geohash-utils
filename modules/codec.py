@@ -254,6 +254,8 @@ if __name__ == "__main__":
     assert(lat_range[0] <= 35.68123 and 35.68123 < lat_range[1])
     assert(lng_range[0] <= 139.76712 and 139.76712 < lng_range[1])
     # - encode_to_geohashes
-    assert(encode_to_geohashes((35.123, 135.123), (35.124, 135.124), 6) 
-        == ['xn0pfc', 'xn0pff'])
+    assert(encode_to_geohashes((34.620, 136.471), (34.621, 136.472), 6)
+        == ['xn1hcq'])
+    assert(encode_to_geohashes((34.620, 136.471), (34.621, 136.472), 7)
+        == ['xn1hcqr', 'xn1hcqx'])
     print('TEST: OK')
