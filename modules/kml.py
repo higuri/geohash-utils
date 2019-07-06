@@ -5,20 +5,22 @@
 # https://developers.google.com/kml/
 #
 
-if __name__ == "__main__":
-    from codec import decode_to_range
-else:
-    from .codec import decode_to_range
+from .codec import decode_to_range
 
-# kml_from_latlngs()
-def kml_from_latlngs(latlng0, latlng1, title='title'):
-    (lat0, lng0) = latlng0
-    (lat1, lng1) = latlng1
-    return (
+# from_latlngs()
+def from_latlngs(regions, title='KML Document'):
+    retval = (
         '<?xml version="1.0" encoding="UTF-8"?>' +
         '<kml xmlns="http://www.opengis.net/kml/2.2">' +
+        '<Document><name>%s</name>'
+    )
+    for (i, region) in enumerate(regions):
+        # TODO: error check
+        (lat0, lng0) = region[0]
+        (lat1, lng1) = region[1]
+        retval += (
           '<Placemark>' +
-            '<name>%s</name>' % (title) +
+            '<name>%d</name>' % (i + 1) +
             '<Polygon>' +
               '<outerBoundaryIs>' +
                 '<LinearRing>' +
@@ -32,13 +34,14 @@ def kml_from_latlngs(latlng0, latlng1, title='title'):
                 '</LinearRing>' +
               '</outerBoundaryIs>' +
             '</Polygon>' +
-          '</Placemark>' +
-        '</kml>')
+          '</Placemark>')
+    retval += '</Document></kml>'
+    return retval
 
-# kml_from_geohash()
-def kml_from_geohash(geohash, title='title'):
-    ((lat0, lat1), (lng0, lng1)) = decode_to_range(geohash)
-    return kml_from_latlngs((lat0, lng0), (lat1, lng1), title)
-
-if __name__ == "__main__":
-    print(kml_from_latlngs((35.123, 135.123), (35.124, 135.124)))
+# from_geohash()
+def from_geohash(geohashes, title='KML Document'):
+    regions = []
+    for geohash in geohashes:
+        ((lat0, lat1), (lng0, lng1)) = decode_to_range(geohash)
+        regions.append(((lat0, lng0), (lat1, lng1)))
+    return from_latlngs(regions, title)

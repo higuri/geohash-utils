@@ -5,8 +5,9 @@
 
 import sys
 import argparse
-import modules.codec as codec
 import modules.adjacent as adjacent
+import modules.codec as codec
+import modules.kml as kml
 
 # cmd_encode()
 # gutils.py encode 35.1234 139.1234
@@ -60,6 +61,25 @@ def cmd_decode(argv):
         print(codec.decode_to_range(args.geohash))
     return 0
 
+# cmd_kml()
+def cmd_kml(argv):
+    parser = argparse.ArgumentParser(
+        description='Outputs KML string to draw ' +
+        'the specified geohash or coordinates.')
+    parser.add_argument('geohashes', type=str, nargs='*', help='geohashes to draw')
+    parser.add_argument('lat1', type=float, nargs='?', help='lat1')
+    parser.add_argument('lng1', type=float, nargs='?', help='lng1')
+    parser.add_argument('lat2', type=float, nargs='?', help='lat2')
+    parser.add_argument('lng2', type=float, nargs='?', help='lng2')
+    parser.add_argument('--coordinates', '-c', action='store_true')
+    args = parser.parse_args(argv)
+    if args.coordinates:
+        print(kml.from_latlngs(
+            (args.lat1, args.lng1), (args.lat2, args.lng2)))
+    else:
+        print(kml.from_geohash(args.geohashes))
+    return
+
 # cmd_adjacent()
 def cmd_adjacent(argv):
     parser = argparse.ArgumentParser(
@@ -83,6 +103,8 @@ def main():
         return cmd_encode(sys.argv[2:])
     elif cmd == 'decode':
         return cmd_decode(sys.argv[2:])
+    elif cmd == 'kml':
+        return cmd_kml(sys.argv[2:])
     elif cmd == 'adjacent':
         return cmd_adjacent(sys.argv[2:])
     elif cmd == 'help':
@@ -93,6 +115,8 @@ def main():
                 return cmd_encode(['-h'])
             elif cmd1 == 'decode':
                 return cmd_decode(['-h'])
+            elif cmd1 == 'kml':
+                return cmd_kml(['-h'])
             elif cmd1 == 'adjacent':
                 return cmd_adjacent(['-h'])
             else:
@@ -106,5 +130,5 @@ def main():
         parser.print_help()
     return -1
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())
